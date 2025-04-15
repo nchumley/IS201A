@@ -1,0 +1,51 @@
+.common{
+    text-align:center;
+    font-family:Arial, Helvetica, sans-serif;
+}
+.header{
+    background-color: black;
+    color: white;
+    height: 100px;
+    line-height: 100px;
+}
+.mainbody{
+    background-color: pink
+}
+.footer{
+    position:fixed;
+    background-color: black;
+    color:White;
+    bottom: 0px;
+    left: 5px;
+    right: 5px;
+    height: 25px;
+    line-height: 25px;
+}
+
+img{
+    display: block;
+    width: 25%;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+nav{
+    background-color: lightgray;
+    padding:10px;
+    font-weight: bold;
+
+}
+
+nav a:hover{
+    background-color:#ccc;
+}
+body {
+    background-color: lightblue;
+  }
+
+.tableauPlaceholder {
+  display: block;   /* Make sure the iframe behaves like a block element */
+  margin: 0 auto;   /* Center it horizontally */
+  border: none;     /* Remove any border */
+  padding: 0;       /* Remove padding */
+}

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blackjack - The Ultimate Card Game</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #FF6F61, #D1C4E9);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      height: 100vh;
+      margin: 0;
+      justify-content: center;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: #F39C12;
+      text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+      margin-bottom: 20px;
+    }
+
+    .game-area {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 15px;
+      width: 350px;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .cards {
+      margin: 10px 0;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      width: 60px;
+      height: 60px;
+      margin: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff;
+      color: black;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .card.hearts { color: red; }
+    .card.diamonds { color: red; }
+    .card.clubs { color: black; }
+    .card.spades { color: black; }
+
+    button {
+      margin: 10px 5px;
+      padding: 10px 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #2980B9;
+      color: white;
+    }
+
+    button:hover {
+      background-color: #1abc9c;
+    }
+
+    #result {
+      font-weight: bold;
+      margin-top: 20px;
+      font-size: 18px;
+      color: #E74C3C;
+    }
+
+    .btn-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Blackjack - The Ultimate Card Game</h1>
+  <div class="game-area">
+    <div>
+      <strong>Your Cards:</strong>
+      <div id="player-cards" class="cards"></div>
+      <div>Total: <span id="player-total">0</span></div>
+    </div>
+    <hr />
+    <div>
+      <strong>Dealer's Cards:</strong>
+      <div id="dealer-cards" class="cards"></div>
+      <div>Total: <span id="dealer-total">0</span></div>
+    </div>
+    <div id="result"></div>
+    <div class="btn-container">
+      <button onclick="hit()">Hit</button>
+      <button onclick="stand()">Stand</button>
+      <button onclick="restart()">Restart</button>
+    </div>
+  </div>
+
+  <script>
+    let playerCards = [];
+    let dealerCards = [];
+    let gameOver = false;
+
+    const suits = ["hearts", "diamonds", "clubs", "spades"];
+    const values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"];
+
+    function drawCard() {
+      const suit = suits[Math.floor(Math.random() * suits.length)];
+      const value = values[Math.floor(Math.random() * values.length)];
+      return { suit, value };
+    }
+
+    function cardValue(card) {
+      if (card.value === "Ace") {
+        return 11;
+      } else if (card.value === "King" || card.value === "Queen" || card.value === "Jack" || card.value === "10") {
+        return 10;
+      }
+      return parseInt(card.value);
+    }
+
+    function total(cards) {
+      let sum = cards.reduce((acc, card) => acc + cardValue(card), 0);
+      let aceCount = cards.filter(card => card.value === "Ace").length;
+
+      // Adjust for Aces if the total goes over 21
+      while (sum > 21 && aceCount > 0) {
+        sum -= 10;
+        aceCount -= 1;
+      }
+      return sum;
+    }
+
+    function updateDisplay() {
+      const playerCardsDiv = document.getElementById("player-cards");
+      const dealerCardsDiv = document.getElementById("dealer-cards");
+
+      playerCardsDiv.innerHTML = '';
+      dealerCardsDiv.innerHTML = '';
+
+      playerCards.forEach(card => {
+        const cardElement = document.createElement("div");
+        cardElement.classList.add("card", card.suit);
+        cardElement.innerText = `${card.value} ${getSuitSymbol(card.suit)}`;
+        playerCardsDiv.appendChild(cardElement);
+      });
+
+      dealerCards.forEach(card => {
+        const cardElement = document.createElement("div");
+        cardElement.classList.add("card", card.suit);
+        cardElement.innerText = `${card.value} ${getSuitSymbol(card.suit)}`;
+        dealerCardsDiv.appendChild(cardElement);
+      });
+
+      document.getElementById("player-total").innerText = total(playerCards);
+      document.getElementById("dealer-total").innerText = total(dealerCards);
+    }
+
+    function getSuitSymbol(suit) {
+      const symbols = {
+        hearts: "♥",
+        diamonds: "♦",
+        clubs: "♣",
+        spades: "♠"
+      };
+      return symbols[suit];
+    }
+
+    function hit() {
+      if (gameOver) return;
+      playerCards.push(drawCard());
+      updateDisplay();
+
+      if (total(playerCards) > 21) {
+        document.getElementById("result").innerText = "You Busted! Dealer Wins!";
+        gameOver = true;
+      }
+    }
+
+    function stand() {
+      if (gameOver) return;
+      while (total(dealerCards) < 17) {
+        dealerCards.push(drawCard());
+      }
+      updateDisplay();
+      let playerTotal = total(playerCards);
+      let dealerTotal = total(dealerCards);
+      let result = "";
+
+      if (dealerTotal > 21 || playerTotal > dealerTotal) {
+        result = "You Win!";
+      } else if (playerTotal < dealerTotal) {
+        result = "Dealer Wins!";
+      } else {
+        result = "It's a Tie!";
+      }
+
+      document.getElementById("result").innerText = result;
+      gameOver = true;
+    }
+
+    function restart() {
+      playerCards = [drawCard(), drawCard()];
+      dealerCards = [drawCard()];
+      gameOver = false;
+      document.getElementById("result").innerText = "";
+      updateDisplay();
+    }
+
+    restart(); // start a new game on load
+  </script>
+</body>
+</html>
+
+
